@@ -6,10 +6,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 CHUNK_DIR = "chunks"
 DOWNLOAD_DIR = "downloads"
-METADATA_FILE = "file_metadata.json"
+METADATA_FILE = "shared_files.json"
 PEER_IP = "127.0.0.1"
 PEER_PORT = 9000
-MAX_THREADS = 5  # Change this for more/less parallelism
+MAX_THREADS = 5
 
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
@@ -27,23 +27,29 @@ def request_chunk(file_id, chunk_index):
     }
 
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((PEER_IP, PEER_PORT))
-        s.send(json.dumps(request).encode())
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((PEER_IP, PEER_PORT))
+            s.send(json.dumps(request).encode())
 
-        response = s.recv(65536).decode()
-        response_data = json.loads(response)
+            # Receive the response (handle fragmented or large responses)
+            buffer = b""
+            while True:
+                data = s.recv(4096)
+                if not data:
+                    break
+                buffer += data
 
-        if response_data["type"] == "CHUNK_DATA":
-            decoded_data = base64.b64decode(response_data["data"])
-            return chunk_index, decoded_data
-        else:
-            raise Exception(response_data.get("message", "Unknown error"))
+            response = buffer.decode(errors="ignore")
+            response_data = json.loads(response)
+
+            if response_data["type"] == "CHUNK_DATA":
+                decoded_data = base64.b64decode(response_data["data"])
+                return chunk_index, decoded_data
+            else:
+                raise Exception(response_data.get("message", "Unknown error"))
     except Exception as e:
         print(f"[!] Exception on chunk {chunk_index}: {e}")
         return chunk_index, None
-    finally:
-        s.close()
 
 
 def reconstruct_file(file_id, chunks_data, output_path):
