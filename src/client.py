@@ -14,16 +14,16 @@ def request_chunk(file_id, chunk_index, peer_ip="127.0.0.1", peer_port=9000):
         s.connect((peer_ip, peer_port))
         s.send(json.dumps(request).encode())
 
-        # Read full response (with buffer loop)
-        chunks = []
+        # ✅ Read the full JSON response safely
+        response_chunks = []
         while True:
-            chunk = s.recv(4096)
-            if not chunk:
+            part = s.recv(4096)
+            if not part:
                 break
-            chunks.append(chunk)
-        
-        full_data = b''.join(chunks).decode()
-        response_data = json.loads(full_data)
+            response_chunks.append(part)
+
+        full_response = b''.join(response_chunks).decode('utf-8')
+        response_data = json.loads(full_response)
 
         if response_data["type"] == "CHUNK_DATA":
             decoded_data = base64.b64decode(response_data["data"])
@@ -36,3 +36,6 @@ def request_chunk(file_id, chunk_index, peer_ip="127.0.0.1", peer_port=9000):
         print("[!] Failed to request chunk:", e)
     finally:
         s.close()
+
+# Replace with your actual file_id and chunk index
+request_chunk(file_id="295254942f1f4043904d419acc4d7617f351e8b3f461b46ad622811741defef7", chunk_index=1)
