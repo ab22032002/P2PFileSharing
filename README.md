@@ -28,7 +28,7 @@ A lightweight Peer-to-Peer (P2P) file sharing system built using Python. This sy
 - Reconstructs the file using received chunks.
 - Saves the result in the `downloads/` folder with a `downloaded_` prefix.
 
----
+```
 
 ## 📁 Project Structure
 p2p_project/
@@ -44,7 +44,7 @@ p2p_project/
   └── test_chunking.py     # Script to test chunking functionality
 |README.md
 
----
+```
 
 ## 🛠️ How to Run
 
