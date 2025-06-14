@@ -9,8 +9,10 @@ Directory Structure
 p2p_project/
 ├── peer.py              # 👥 Runs the server for this peer
 ├── client.py            # 📥 Downloads chunks from other peers
-├── file_utils.py        # 🧩 Split/join files
-├── chunks/              # 📂 Stores local chunks
-├── downloads/           # 📥 Final reconstructed files
-├── shared_files.json    # 📃 List of local shared files (file_id, name, chunks)
-└── test_chunking.py     # 🧪 Optional testing script
+├── file_utils.py        # 🧩 Utilities to split and join files
+├── chunks/              # 📂 Stores local file chunks
+├── downloads/           # 📥 Contains fully reconstructed/downloaded files
+├── shared_files.json    # 📃 Metadata: file IDs, names, and their chunks
+└── test_chunking.py     # 🧪 Script to test chunking functionality
+
+
